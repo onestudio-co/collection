@@ -79,7 +79,13 @@ From within Claude Code:
 /plugin install collection@one-studio
 ```
 
-### 3. Use the skills
+### 3. Restart the session
+
+After installing, **restart your Claude Code session** (`/exit` then relaunch) to load the new plugins.
+
+> **Note:** The built-in `/reload-plugins` command _should_ reload newly added plugins without a restart, but it currently does not. This is a [known bug](https://github.com/anthropics/claude-code/issues/35641). Once the Anthropic team fixes it, you can use `/reload-plugins` instead of restarting.
+
+### 4. Use the skills
 
 ```
 /slim
