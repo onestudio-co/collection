@@ -248,15 +248,20 @@ for f in .claude/agents/*.md; do echo "$(basename "$f" .md): $(yq -f=extract '.m
 
 **If not**, use `Grep` to find `model:` in each agent file's frontmatter.
 
-Print an audit table:
+**If `cc-token` is available**, include per-agent cost data using the token counts from Phase 0:
+```bash
+cc-token count .claude/agents/ --ext .md --json --show-cost
+```
+
+Print an audit table (include cost column if cc-token data is available):
 
 ```
-| Agent      | Current | Recommended | Reason                                      |
-|------------|---------|-------------|---------------------------------------------|
-| Orchestrator | opus  | opus ✓      | Cross-system decisions, strategic reasoning |
-| Researcher | opus   | sonnet ↓    | Digestion + structuring — not strategic     |
-| Developer  | sonnet | sonnet ✓    | Code tasks — sonnet appropriate             |
-| Monitor    | sonnet | haiku ↓     | Polling / scanning — mechanical work        |
+| Agent        | Current | Recommended | Est. $/1K spawns | Reason                                      |
+|--------------|---------|-------------|------------------|---------------------------------------------|
+| Orchestrator | opus    | opus ✓      | $4.70            | Cross-system decisions, strategic reasoning |
+| Researcher   | opus    | sonnet ↓    | $4.70 → $0.94   | Digestion + structuring — not strategic     |
+| Developer    | sonnet  | sonnet ✓    | $0.94            | Code tasks — sonnet appropriate             |
+| Monitor      | sonnet  | haiku ↓     | $0.94 → $0.08   | Polling / scanning — mechanical work        |
 ```
 
 **Model tiers and cost** (per 1M input tokens, approximate):
