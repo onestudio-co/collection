@@ -1,7 +1,7 @@
 {
     "name": "collection",
     "description": "A collection of Claude Code skills built by One Studio.",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "author": {
         "name": "One Studio Co"
     },

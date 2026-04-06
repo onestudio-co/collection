@@ -33,9 +33,16 @@ Skills are reusable prompts that extend Claude Code with domain-specific workflo
 
 ### `/slim` — Context Budget Auditor
 
-Measures and compresses the token cost of your Claude Code agent system.
+Measures and compresses the token cost of your Claude Code agent system. **CLI-native — no MCP servers required.**
 
-Every agent spawn loads `CLAUDE.md` + `MEMORY.md` + the agent file + its memory index — all verbatim. As projects grow, these files accumulate detail that's only needed occasionally. `slim` audits all always-loaded files, proposes a two-tier split (fast-tier always loaded, slow-tier read on demand), and compresses agent files and memory indexes — without losing any content.
+Every agent spawn loads the full `CLAUDE.md` chain + rules + `MEMORY.md` (first 200 lines) + the agent file + its memory index — all verbatim. As projects grow, these files accumulate detail that's only needed occasionally. `slim` audits all always-loaded files across 12+ locations, proposes a two-tier split (fast-tier always loaded, slow-tier read on demand), and compresses agent files, rules, and memory indexes — without losing any content.
+
+**Optional CLI tools** (recommended for better results):
+- [`cc-token`](https://github.com/iota-uz/cc-token) — accurate Claude token counting via Anthropic's official API. Install: `go install github.com/iota-uz/cc-token@latest`
+- [`yq`](https://github.com/mikefarah/yq) — YAML/frontmatter processor. Install: `brew install yq`
+- [`markdown-link-check`](https://github.com/tcort/markdown-link-check) — validates markdown links. Install: `npm install -g markdown-link-check`
+
+The skill works without any of these — it falls back to built-in tools (`wc -c`, `Grep`, `Glob`).
 
 **Run it when:**
 - Spawning an agent costs more tokens than expected
@@ -44,12 +51,12 @@ Every agent spawn loads `CLAUDE.md` + `MEMORY.md` + the agent file + its memory 
 - You want a monthly context hygiene pass
 
 **What it does (6 phases):**
-1. **Audit** — measures every always-loaded file, prints a token cost table sorted by impact
+1. **Audit** — discovers all always-loaded files (CLAUDE.md chain, rules, agents, memory), measures token cost using `cc-token` or byte estimation
 2. **CLAUDE.md split** — extracts reference material to `docs/claude/*.md`, keeps only the fast-tier in `CLAUDE.md`
-3. **MEMORY.md compression** — collapses verbose entries to one-liners, removes dead links
-4. **Agent file compression** — removes duplication with `CLAUDE.md`, cuts prose rationale, keeps domain-specific rules
-5. **Memory index compression** — each entry to one line, under 80 lines per index
-6. **Model right-sizing** — audits `model:` frontmatter per agent, recommends Haiku/Sonnet/Opus based on task type, documents a dynamic escalation pattern for edge cases
+3. **MEMORY.md compression** — collapses verbose entries to one-liners, validates links with `markdown-link-check`
+4. **Agent & rules file compression** — removes duplication with `CLAUDE.md`, cuts prose rationale, keeps domain-specific rules
+5. **Memory index compression** — each entry to one line, under 80 lines per index, validates links
+6. **Model right-sizing** — audits `model:` frontmatter per agent using `yq`, recommends Haiku/Sonnet/Opus based on task type, includes cost estimates
 
 Interactive — proposes changes, waits for approval before writing each phase.
 
